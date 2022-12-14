@@ -8,8 +8,6 @@ File uploads include
 4. a csv with the presence/absence of cultures on the plates
 5. a csv with the thermocouple data
 6. fastq files from RNA --> cDNA (forward and reversed, filtered with primers removed)
+7. Dada2 SCript 
+8. Script for thermocouples and model graphs/analysis 
 
-
-##### Need to be uploaded ##### 
-7. Dada2 Script 
-8. script for thermocpouple models 
