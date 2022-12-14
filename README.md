@@ -7,8 +7,9 @@ File uploads include
 3. csvs of the model output for the heat-stratification model
 4. a csv with the presence/absence of cultures on the plates
 5. a csv with the thermocouple data
+6. fastq files from RNA --> cDNA (forward and reversed, filtered with primers removed)
+
 
 ##### Need to be uploaded ##### 
-6. cDNA data 
 7. Dada2 Script 
 8. script for thermocpouple models 
