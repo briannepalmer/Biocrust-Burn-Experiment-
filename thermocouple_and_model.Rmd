@@ -1,0 +1,142 @@
+---
+title: "Thermocouple and Model Data"
+author: "Brianne"
+date: "2/23/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = "C:/Users/Brianne/Documents/Simulated-Burn/")
+```
+
+Load Libraries 
+```{r, echo = FALSE}
+library(tidyverse)
+library(plotly)
+library(htmlwidgets)
+library(patchwork)
+```
+
+Load the Data
+```{r}
+
+data <- read.csv("data/thermocouple_actualdata.csv")
+data$time <- data$ï..Time
+data$Depth <- as.factor(data$Depth)
+
+new.df <- na.omit(data)
+
+new.df <- new.df %>%  group_by(Depth, time, Type, Temperature, ID) %>% summarize(Mean_Temp = mean(Temperature.1))
+```
+
+Plot for Bare 450 with the model 450
+```{r, echo = FALSE}
+p1 <- ggplot(new.df %>% filter(Temperature == "450", Mean_Temp >0, time < 60, ID == "Model450"), aes(x = time, y = Mean_Temp, color = Depth)) + geom_point(alpha = 0.5, size = 0.5) + theme_bw() + labs(x = "Time (min)", y = "Temperature (C)", title = "A", color = "Depth (cm) - From Model")  + geom_point(data = new.df %>% filter(Temperature == "450", Mean_Temp >0, time < 60, ID == "Bare450"), aes(x= time, y = Mean_Temp, shape = Depth), color = "black", alpha = 0.5, size = 1) + labs(shape = "Depth (cm) - Measured") + theme(legend.position = "none") + ylim(0,600)
+
+pdf("450Bare.pdf", height = 12, width = 12)
+p1
+dev.off()
+```
+
+```{r, echo = FALSE}
+p2 <- ggplot(new.df %>% filter(Temperature == "450", Mean_Temp >0, time < 60, ID == "Model450"), aes(x = time, y = Mean_Temp, color = Depth)) + geom_point(alpha = 0.5, size = 0.5) + theme_bw() + labs(x = "Time (min)", y = "Temperature (C)", title = "B", color = "Depth (cm) - From Model")  + geom_point(data = new.df %>% filter(Temperature == "450", Mean_Temp >0, time < 60, ID == "BSC450"), aes(x= time, y = Mean_Temp, shape = Depth), color = "black", alpha = 0.5, size = 1) + labs(shape = "Depth (cm) - Measured") + theme(legend.position = "none") + ylim(0,600)
+
+pdf("450BSC.pdf", height = 12, width = 12)
+p2
+dev.off()
+```
+
+```{r, echo = FALSE}
+p3 <- ggplot(new.df %>% filter(Temperature == "600", Mean_Temp >0, time < 60, ID == "Model600"), aes(x = time, y = Mean_Temp, color = Depth)) + geom_point(alpha = 0.5, size = 0.5) + theme_bw() + labs(x = "Time (min)", y = "Temperature (C)", title = "C", color = "Depth (cm) - From Model")  + geom_point(data = new.df %>% filter(Temperature == "600", Mean_Temp >0, time < 60, ID == "Bare600"), aes(x= time, y = Mean_Temp, shape = Depth), color = "black", alpha = 0.5, size = 1) + labs(shape = "Depth (cm) - Measured") + theme(legend.position = "none") + ylim(0,600)
+
+pdf("600Bare.pdf", height = 12, width = 12)
+p3
+dev.off()
+```
+
+```{r, echo = FALSE}
+p4.legend <- ggplot(new.df %>% filter(Temperature == "600", Mean_Temp >0, time < 60, ID == "Model600"), aes(x = time, y = Mean_Temp, color = Depth)) + geom_point(alpha = 0.5, size = 0.5) + theme_bw() + labs(x = "Time (min)", y = "Temperature (C)", title = "D", color = "Depth (cm) - From Model")  + geom_point(data = new.df %>% filter(Temperature == "600", Mean_Temp >0, time < 60, ID == "BSC600"), aes(x= time, y = Mean_Temp, shape = Depth), color = "black", alpha = 0.5, size = 1) + labs(shape = "Depth (cm) - Measured") + theme(legend.position = "right") + ylim(0,600)
+
+pdf("BSC600_with_legend.pdf")
+p4.legend
+dev.off()
+
+p4 <- ggplot(new.df %>% filter(Temperature == "600", Mean_Temp >0, time < 60, ID == "Model600"), aes(x = time, y = Mean_Temp, color = Depth)) + geom_point(alpha = 0.5, size = 0.5) + theme_bw() + labs(x = "Time (min)", y = "Temperature (C)", title = "D", color = "Depth (cm) - From Model")  + geom_point(data = new.df %>% filter(Temperature == "600", Mean_Temp >0, time < 60, ID == "BSC600"), aes(x= time, y = Mean_Temp, shape = Depth), color = "black", alpha = 0.5, size = 1) + labs(shape = "Depth (cm) - Measured") + theme(legend.position = "none") + ylim(0,600)
+
+pdf("600BSC.pdf", height = 12, width = 12)
+p4
+dev.off()
+```
+
+```{r}
+pdf("all_models.pdf", height = 12, width = 12)
+(p1 + p2)/(p3+p4)
+dev.off()
+```
+
+find maximum temperature at each depth for each treatment
+```{r}
+thermocouples <- data %>% filter(Type != "Model")
+bare450 <- thermocouples %>% filter(Temperature =="450", Type == "Bare", Temperature.1 != "NaN", Temperature.1 >1, time < 30)
+bare600 <- thermocouples %>% filter(Temperature == "600", Type == "Bare", Temperature.1 != "NaN", Temperature.1 >1, time < 30)
+bsc450 <- thermocouples %>% filter(Temperature == "450", Type == "BSC", Temperature.1 != "NaN", Temperature.1 >1, time <30)
+bsc600 <- thermocouples %>% filter(Temperature == "600",Type == "BSC", Temperature.1 != "NaN", Temperature.1 >1, time<30)
+```
+
+```{r}
+bare450.2 <- bare450 %>% filter(Depth == 2)
+bare450.5 <- bare450 %>% filter(Depth == 5)
+bare450.8 <- bare450 %>% filter(Depth == 8)
+
+bare600.2 <- bare600 %>% filter(Depth == 2)
+bare600.5 <- bare600 %>% filter(Depth == 5)
+bare600.8 <- bare600 %>% filter(Depth == 8)
+
+bsc450.2 <- bsc450 %>% filter(Depth == 2)
+bsc450.5 <- bsc450 %>% filter(Depth == 5)
+bsc450.8 <- bsc450 %>% filter(Depth == 8)
+
+bsc600.2 <- bsc600 %>% filter(Depth == 2)
+bsc600.5 <- bsc600 %>% filter(Depth == 5)
+bsc600.8 <- bsc600 %>% filter(Depth == 8)
+
+```
+
+```{r}
+max(bare450.2$Temperature.1)
+max(bare450.5$Temperature.1)
+max(bare450.8$Temperature.1)
+```
+
+```{r}
+max(bare600.2$Temperature.1)
+max(bare600.5$Temperature.1)
+max(bare600.8$Temperature.1)
+```
+
+```{r}
+max(bsc450.2$Temperature.1)
+max(bsc450.5$Temperature.1)
+max(bsc450.8$Temperature.1)
+```
+
+```{r}
+max(bsc600.2$Temperature.1)
+max(bsc600.5$Temperature.1)
+max(bsc600.8$Temperature.1)
+```
+
+```{r}
+t.test(bare450.2$Temperature.1, bsc450.2$Temperature.1)
+t.test(bare450.5$Temperature.1, bsc450.5$Temperature.1)
+t.test(bare450.8$Temperature.1, bsc450.8$Temperature.1)
+
+```
+
+```{r}
+t.test(bare600.2$Temperature.1, bsc600.2$Temperature.1)
+t.test(bare600.5$Temperature.1, bsc600.5$Temperature.1)
+t.test(bare600.8$Temperature.1, bsc600.8$Temperature.1)
+
+```
